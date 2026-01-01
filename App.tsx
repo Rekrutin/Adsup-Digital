@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Menu, 
@@ -14,9 +13,10 @@ import {
   Target,
   ShieldCheck,
   Star,
-  User
+  User,
+  LogIn
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { NAV_LINKS, CURRICULUM, METHODS, TARGET_AUDIENCE } from './constants';
 
 const LogoAU = ({ 
@@ -71,7 +71,8 @@ interface ScrollRevealProps {
 }
 
 const ScrollReveal = ({ children, variant = "fadeUp", delay = 0 }: ScrollRevealProps) => {
-  const variants = {
+  // Added explicit Variants type to avoid inference issues with string vs Easing literal types
+  const variants: Record<string, Variants> = {
     fadeUp: {
       hidden: { opacity: 0, y: 40 },
       visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut", delay } }
@@ -152,7 +153,7 @@ const Navbar = () => {
             </div>
           </motion.a>
           
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6">
             {NAV_LINKS.map((link, idx) => (
               <motion.a 
                 initial={{ opacity: 0, y: -10 }}
@@ -165,6 +166,16 @@ const Navbar = () => {
                 {link.name}
               </motion.a>
             ))}
+            <div className="h-6 w-px bg-gray-200 mx-2"></div>
+            <motion.a 
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 1.1 }}
+              href="#" 
+              className="text-gray-900 hover:text-adsup-blue font-bold text-sm flex items-center gap-1.5 transition-colors"
+            >
+              <LogIn size={16} /> Login
+            </motion.a>
             <motion.a 
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -198,9 +209,12 @@ const Navbar = () => {
                   {link.name}
                 </a>
               ))}
-              <div className="pt-4">
-                <a href="https://wa.me/6285262344328" className="block w-full text-center bg-adsup-blue text-white py-4 rounded-xl font-bold">
-                  Daftar Sekarang
+              <div className="pt-6 grid grid-cols-2 gap-4">
+                <a href="#" className="flex items-center justify-center gap-2 border-2 border-gray-100 text-gray-900 py-3 rounded-xl font-bold text-sm" onClick={() => setIsOpen(false)}>
+                  <LogIn size={18} /> Login
+                </a>
+                <a href="https://wa.me/6285262344328" className="bg-adsup-blue text-white py-3 rounded-xl font-bold text-sm text-center" onClick={() => setIsOpen(false)}>
+                  Daftar
                 </a>
               </div>
             </div>
