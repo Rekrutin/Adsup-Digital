@@ -13,12 +13,21 @@ import {
   ArrowRight,
   Target,
   ShieldCheck,
-  Star
+  Star,
+  User
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NAV_LINKS, CURRICULUM, METHODS, TARGET_AUDIENCE } from './constants';
 
-const LogoAU = ({ className = "w-10 h-10", useGradient = true }: { className?: string, useGradient?: boolean }) => (
+const LogoAU = ({ 
+  className = "w-10 h-10", 
+  useGradient = true,
+  animateOnLoad = false 
+}: { 
+  className?: string, 
+  useGradient?: boolean,
+  animateOnLoad?: boolean
+}) => (
   <svg viewBox="0 0 100 100" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
     {useGradient && (
       <defs>
@@ -28,7 +37,10 @@ const LogoAU = ({ className = "w-10 h-10", useGradient = true }: { className?: s
         </linearGradient>
       </defs>
     )}
-    <path 
+    <motion.path 
+      initial={animateOnLoad ? { pathLength: 0, opacity: 0 } : {}}
+      animate={animateOnLoad ? { pathLength: 1, opacity: 1 } : {}}
+      transition={animateOnLoad ? { duration: 1.5, ease: "easeInOut", delay: 0.5 } : {}}
       d="M25 75V40C25 28.9543 33.9543 20 45 20C56.0457 20 65 28.9543 65 40V75M65 40V70C65 78.2843 71.7157 85 80 85C88.2843 85 95 78.2843 95 70V40M25 50H50" 
       stroke={useGradient ? "url(#logoGradient)" : "currentColor"} 
       strokeWidth="14" 
@@ -51,8 +63,6 @@ const DUMMY_TESTIMONIALS = [
   { name: "Anton Hartono", role: "Toko Bangunan", text: "Walaupun gaptek, diajarin pelan-pelan sampai bisa jalanin campaign sendiri." }
 ];
 
-// Define Props interface for ScrollReveal to include delay and resolve children/key errors
-// Added key to ScrollRevealProps to allow passing key when component is used in maps to fix TS errors
 interface ScrollRevealProps {
   children?: React.ReactNode;
   variant?: "fadeUp" | "zoomIn" | "fade";
@@ -60,7 +70,6 @@ interface ScrollRevealProps {
   key?: React.Key;
 }
 
-// Updated ScrollReveal implementation to handle delay and avoid TypeScript errors regarding required children in JSX
 const ScrollReveal = ({ children, variant = "fadeUp", delay = 0 }: ScrollRevealProps) => {
   const variants = {
     fadeUp: {
@@ -103,26 +112,52 @@ const Navbar = () => {
     <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-md py-3' : 'bg-transparent py-5'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-3"
+          <motion.a 
+            href="#"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="flex items-center gap-3 cursor-pointer group"
           >
-            <div className="flex items-center justify-center">
-               <LogoAU className="w-12 h-12" />
+            <motion.div 
+              className="flex items-center justify-center relative"
+              initial={{ rotate: -12, scale: 0.8 }}
+              animate={{ rotate: 0, scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 100, damping: 15 }}
+            >
+               <LogoAU className="w-12 h-12 drop-shadow-sm" animateOnLoad={true} />
+               <motion.div 
+                className="absolute inset-0 bg-adsup-blue/5 rounded-full blur-xl -z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+               />
+            </motion.div>
+            <div className="flex flex-col leading-none overflow-hidden">
+              <motion.span 
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
+                className="text-xl font-black tracking-tighter text-gray-900 uppercase group-hover:text-adsup-blue transition-colors"
+              >
+                Adsup
+              </motion.span>
+              <motion.span 
+                initial={{ y: 15, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.7, duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
+                className="text-[10px] font-bold text-adsup-blue tracking-[0.2em] uppercase"
+              >
+                Academy
+              </motion.span>
             </div>
-            <div className="flex flex-col leading-none">
-              <span className="text-xl font-black tracking-tighter text-gray-900 uppercase">Adsup</span>
-              <span className="text-[10px] font-bold text-adsup-blue tracking-[0.2em] uppercase">Academy</span>
-            </div>
-          </motion.div>
+          </motion.a>
           
           <div className="hidden md:flex items-center space-x-8">
             {NAV_LINKS.map((link, idx) => (
               <motion.a 
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
+                transition={{ delay: 0.8 + (idx * 0.1) }}
                 key={link.name} 
                 href={link.href} 
                 className="text-gray-600 hover:text-adsup-blue transition-colors font-bold text-sm"
@@ -133,6 +168,7 @@ const Navbar = () => {
             <motion.a 
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 1.2, type: "spring" }}
               href="https://wa.me/6285262344328" 
               className="bg-adsup-blue text-white px-6 py-2.5 rounded-full font-bold text-sm hover:bg-blue-600 transition-all shadow-lg shadow-blue-200"
             >
@@ -236,89 +272,101 @@ const TestimonialMarquee = () => (
         </div>
       ))}
     </div>
-    {/* Gradient Overlays */}
     <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-gray-50 to-transparent z-10"></div>
     <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-gray-50 to-transparent z-10"></div>
   </div>
 );
 
-const About = () => (
-  <section id="tentang" className="py-24 bg-gray-50 text-center">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <ScrollReveal>
-        <div className="mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-8 leading-tight">
-            Lebih dari Sekadar Teori, Kami Berbagi Strategi yang <span className="text-adsup-blue">Sudah Teruji</span>
-          </h2>
-          <div className="w-20 h-1.5 bg-adsup-blue mx-auto mb-10 rounded-full"></div>
-          <div className="space-y-6 text-lg text-gray-600 leading-relaxed max-w-3xl mx-auto">
-            <p>
-              Adsup Digital Academy lahir untuk menjembatani celah antara teori pemasaran dan eksekusi lapangan yang kompleks. Kami percaya bahwa setiap orang berhak menguasai teknologi iklan digital untuk mandiri secara ekonomi.
-            </p>
-          </div>
-        </div>
-      </ScrollReveal>
-      
-      <ScrollReveal variant="zoomIn">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
-          {[
-            { label: 'Tahun Pengalaman', value: '5+' },
-            { label: 'UMKM Terbantu', value: '200+' },
-            { label: 'Batch Pelatihan', value: '12+' },
-            { label: 'Kepuasan Alumni', value: '98%' }
-          ].map((stat, idx) => (
-            <motion.div 
-              key={idx} 
-              whileHover={{ scale: 1.05 }}
-              className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100"
-            >
-              <p className="text-3xl font-extrabold text-adsup-blue mb-1">{stat.value}</p>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-tighter">{stat.label}</p>
-            </motion.div>
-          ))}
-        </div>
-      </ScrollReveal>
+const About = () => {
+  const [imgError, setImgError] = useState(false);
+  
+  // URL foto asli dari input pengguna
+  const founderPhotoUrl = "https://r.jina.ai/i/61e8080f562b4c10a3006d67b2d56d11";
 
-      <ScrollReveal>
-        <TestimonialMarquee />
-      </ScrollReveal>
+  return (
+    <section id="tentang" className="py-24 bg-gray-50 text-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <ScrollReveal>
+          <div className="mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-8 leading-tight">
+              Lebih dari Sekadar Teori, Kami Berbagi Strategi yang <span className="text-adsup-blue">Sudah Teruji</span>
+            </h2>
+            <div className="w-20 h-1.5 bg-adsup-blue mx-auto mb-10 rounded-full"></div>
+            <div className="space-y-6 text-lg text-gray-600 leading-relaxed max-w-3xl mx-auto">
+              <p>
+                Adsup Digital Academy lahir untuk menjembatani celah antara teori pemasaran dan eksekusi lapangan yang kompleks. Kami percaya bahwa setiap orang berhak menguasai teknologi iklan digital untuk mandiri secara ekonomi.
+              </p>
+            </div>
+          </div>
+        </ScrollReveal>
+        
+        <ScrollReveal variant="zoomIn">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
+            {[
+              { label: 'Tahun Pengalaman', value: '5+' },
+              { label: 'UMKM Terbantu', value: '200+' },
+              { label: 'Batch Pelatihan', value: '12+' },
+              { label: 'Kepuasan Alumni', value: '98%' }
+            ].map((stat, idx) => (
+              <motion.div 
+                key={idx} 
+                whileHover={{ scale: 1.05 }}
+                className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100"
+              >
+                <p className="text-3xl font-extrabold text-adsup-blue mb-1">{stat.value}</p>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-tighter">{stat.label}</p>
+              </motion.div>
+            ))}
+          </div>
+        </ScrollReveal>
 
-      <ScrollReveal variant="fadeUp">
-        <div className="mt-20 bg-adsup-dark p-10 md:p-16 rounded-[40px] shadow-2xl text-center relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-8 text-white/5 opacity-10">
-            <LogoAU className="w-64 h-64" useGradient={false} />
-          </div>
-          <div className="relative z-10 flex flex-col items-center">
-            <div className="flex flex-col items-center mb-8">
-              {/* Ukuran diperbesar dan zoom difokuskan ke wajah (object-top/object-position) */}
-              <div className="w-40 h-40 md:w-56 md:h-56 rounded-full border-4 border-adsup-blue overflow-hidden shadow-2xl mb-6 bg-gray-800">
-                <img 
-                  src="https://images.unsplash.com/photo-1740212354316-c9569720b080?q=80&w=2070&auto=format&fit=crop" 
-                  alt="Muhammad Fauzan" 
-                  className="w-full h-full object-cover object-[center_20%] scale-[1.3] transition-transform duration-500 hover:scale-[1.4]" 
-                />
+        <ScrollReveal>
+          <TestimonialMarquee />
+        </ScrollReveal>
+
+        <ScrollReveal variant="fadeUp">
+          <div className="mt-20 bg-adsup-dark p-10 md:p-16 rounded-[40px] shadow-2xl text-center relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-8 text-white/5 opacity-10">
+              <LogoAU className="w-64 h-64" useGradient={false} />
+            </div>
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="flex flex-col items-center mb-8">
+                <div className="w-44 h-44 md:w-64 md:h-64 rounded-full border-4 border-adsup-blue overflow-hidden shadow-2xl mb-6 bg-gray-900 flex items-center justify-center relative">
+                  {!imgError ? (
+                    <img 
+                      src={founderPhotoUrl} 
+                      alt="Muhammad Fauzan" 
+                      onError={() => setImgError(true)}
+                      className="w-full h-full object-cover object-top scale-110" 
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center text-gray-400">
+                      <User size={64} />
+                    </div>
+                  )}
+                </div>
+                <div className="text-center">
+                  <h4 className="text-3xl font-bold text-white mb-1">Muhammad Fauzan</h4>
+                  <p className="text-adsup-blue text-lg font-semibold tracking-wide uppercase">Founder & CEO, Adsup Digital Academy</p>
+                </div>
               </div>
-              <div className="text-center">
-                <h4 className="text-3xl font-bold text-white mb-1">Muhammad Fauzan</h4>
-                <p className="text-adsup-blue text-lg font-semibold tracking-wide uppercase">Founder & CEO, Adsup Digital Academy</p>
+              <div className="max-w-4xl">
+                <blockquote className="text-white text-xl md:text-3xl italic leading-relaxed font-light mb-10 max-w-3xl mx-auto">
+                  "Pemasaran digital bukan soal siapa yang memiliki budget paling besar, tapi siapa yang paling mampu memahami audiensnya dan menyajikan solusi yang tepat di waktu yang tepat."
+                </blockquote>
+              </div>
+              <div className="flex flex-wrap gap-10 justify-center grayscale opacity-50 contrast-125 pt-4">
+                 <img src="https://upload.wikimedia.org/wikipedia/commons/b/be/Facebook_Logo_%282019%29.png" className="h-8 md:h-10" alt="Meta" />
+                 <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" className="h-8 md:h-10" alt="Instagram" />
+                 <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Google_Ads_logo.svg" className="h-8 md:h-10" alt="Google Ads" />
               </div>
             </div>
-            <div className="max-w-4xl">
-              <blockquote className="text-white text-xl md:text-3xl italic leading-relaxed font-light mb-10 max-w-3xl mx-auto">
-                "Pemasaran digital bukan soal siapa yang memiliki budget paling besar, tapi siapa yang paling mampu memahami audiensnya dan menyajikan solusi yang tepat di waktu yang tepat."
-              </blockquote>
-            </div>
-            <div className="flex flex-wrap gap-10 justify-center grayscale opacity-50 contrast-125 pt-4">
-               <img src="https://upload.wikimedia.org/wikipedia/commons/b/be/Facebook_Logo_%282019%29.png" className="h-8 md:h-10" alt="Meta" />
-               <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" className="h-8 md:h-10" alt="Instagram" />
-               <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Google_Ads_logo.svg" className="h-8 md:h-10" alt="Google Ads" />
-            </div>
           </div>
-        </div>
-      </ScrollReveal>
-    </div>
-  </section>
-);
+        </ScrollReveal>
+      </div>
+    </section>
+  );
+};
 
 const Program = () => (
   <section id="program" className="py-24 text-center">
