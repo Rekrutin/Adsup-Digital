@@ -9,7 +9,8 @@ import {
   ShieldCheck, 
   ChevronLeft,
   Info,
-  AlertCircle
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -21,6 +22,7 @@ export const LoginPage = ({ lang, onNavigate, onLogin }: {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const t: Record<string, any> = {
     id: {
@@ -36,7 +38,7 @@ export const LoginPage = ({ lang, onNavigate, onLogin }: {
       secureNotice: 'Sesi Anda dilindungi oleh enkripsi 256-bit.',
       sidebarTitle: 'Kuasai Skill Meta Ads Hari Ini',
       sidebarDesc: 'Akses materi eksklusif, template campaign, dan rekaman live mentoring di satu tempat.',
-      invalid: 'Email atau password salah. Coba: user@adsup.id / adsup123'
+      invalid: 'Email atau password salah. Pastikan Anda sudah mendaftar dan membayar.'
     },
     en: {
       title: 'Welcome Back',
@@ -51,24 +53,50 @@ export const LoginPage = ({ lang, onNavigate, onLogin }: {
       secureNotice: 'Your session is protected by 256-bit encryption.',
       sidebarTitle: 'Master Meta Ads Skills Today',
       sidebarDesc: 'Access exclusive materials, campaign templates, and live mentoring recordings in one place.',
-      invalid: 'Invalid email or password. Try: user@adsup.id / adsup123'
+      invalid: 'Invalid email or password. Ensure you have enrolled and paid.'
     }
   }[lang];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Dummy login logic
-    if (formData.email === 'user@adsup.id' && formData.password === 'adsup123') {
-      onLogin('newbie');
-    } else {
-      setError(t.invalid);
-      setTimeout(() => setError(''), 5000);
+    setIsSubmitting(true);
+    setError('');
+
+    const SUPABASE_URL = process.env.SUPABASE_URL || '';
+    const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
+
+    try {
+      // Query Supabase for the user with matching email and password
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/registrations?email=eq.${encodeURIComponent(formData.email)}&password=eq.${encodeURIComponent(formData.password)}`,
+        {
+          method: 'GET',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        }
+      );
+
+      const data = await response.json();
+
+      if (data && data.length > 0) {
+        // Successful login
+        const user = data[0];
+        onLogin(user.program === 'advance' ? 'expert' : 'newbie');
+      } else {
+        setError(t.invalid);
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Gagal menghubungi server. Silakan coba lagi nanti.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="min-h-screen pt-20 flex bg-white">
-      {/* Left Column: Visual Sidebar */}
       <div className="hidden lg:flex lg:w-1/2 bg-adsup-dark relative overflow-hidden items-center justify-center p-20">
         <div className="absolute inset-0 bg-gradient-to-br from-adsup-blue/20 to-transparent"></div>
         <div className="absolute top-0 right-0 p-12 opacity-10">
@@ -104,7 +132,6 @@ export const LoginPage = ({ lang, onNavigate, onLogin }: {
         </motion.div>
       </div>
 
-      {/* Right Column: Login Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 md:p-20 bg-gray-50/30">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -124,7 +151,7 @@ export const LoginPage = ({ lang, onNavigate, onLogin }: {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600 text-sm font-bold animate-shake">
+              <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600 text-sm font-bold">
                 <AlertCircle size={18} /> {error}
               </div>
             )}
@@ -135,9 +162,10 @@ export const LoginPage = ({ lang, onNavigate, onLogin }: {
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                 <input 
                   required
+                  disabled={isSubmitting}
                   type="email" 
-                  className="w-full pl-12 pr-5 py-4 rounded-2xl border border-gray-200 focus:border-adsup-blue focus:ring-4 focus:ring-adsup-blue/10 outline-none transition-all bg-white"
-                  placeholder="user@adsup.id"
+                  className="w-full pl-12 pr-5 py-4 rounded-2xl border border-gray-200 focus:border-adsup-blue outline-none transition-all bg-white disabled:opacity-50"
+                  placeholder="email@example.com"
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
                 />
@@ -153,9 +181,10 @@ export const LoginPage = ({ lang, onNavigate, onLogin }: {
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                 <input 
                   required
+                  disabled={isSubmitting}
                   type={showPassword ? "text" : "password"} 
-                  className="w-full pl-12 pr-12 py-4 rounded-2xl border border-gray-200 focus:border-adsup-blue focus:ring-4 focus:ring-adsup-blue/10 outline-none transition-all bg-white"
-                  placeholder="adsup123"
+                  className="w-full pl-12 pr-12 py-4 rounded-2xl border border-gray-200 focus:border-adsup-blue outline-none transition-all bg-white disabled:opacity-50"
+                  placeholder="••••••••"
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
                 />
@@ -171,29 +200,18 @@ export const LoginPage = ({ lang, onNavigate, onLogin }: {
 
             <button 
               type="submit"
-              className="w-full bg-adsup-blue text-white py-5 rounded-2xl font-bold text-lg hover:bg-blue-600 transition-all shadow-xl shadow-blue-100 flex items-center justify-center gap-2"
+              disabled={isSubmitting}
+              className="w-full bg-adsup-blue text-white py-5 rounded-2xl font-bold text-lg hover:bg-blue-600 transition-all shadow-xl shadow-blue-100 flex items-center justify-center gap-2 disabled:bg-gray-400"
             >
-              {t.loginBtn} <ArrowRight size={20} />
+              {isSubmitting ? <Loader2 className="animate-spin" /> : <>{t.loginBtn} <ArrowRight size={20} /></>}
             </button>
 
             <div className="pt-8 text-center border-t border-gray-100">
               <p className="text-gray-500 text-sm font-medium">
-                {t.noAccount} <button onClick={() => onNavigate('register')} className="text-adsup-blue font-bold hover:underline">{t.registerLink}</button>
+                {t.noAccount} <button onClick={() => onNavigate('pricing')} className="text-adsup-blue font-bold hover:underline">{t.registerLink}</button>
               </p>
             </div>
           </form>
-
-          {/* Dummy Credentials Notice */}
-          <div className="mt-8 p-6 bg-blue-50 rounded-2xl border border-blue-100">
-            <div className="flex items-center gap-3 mb-4">
-              <Info className="text-adsup-blue" size={20} />
-              <p className="font-bold text-gray-900 text-sm">{lang === 'id' ? 'Akun Demo Siswa' : 'Student Demo Account'}</p>
-            </div>
-            <div className="space-y-2 text-xs text-gray-600 font-medium">
-               <p>Email: <span className="font-bold text-adsup-blue">user@adsup.id</span></p>
-               <p>Password: <span className="font-bold text-adsup-blue">adsup123</span></p>
-            </div>
-          </div>
         </motion.div>
       </div>
     </div>

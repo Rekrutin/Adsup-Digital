@@ -19,7 +19,10 @@ import {
   TrendingUp,
   ArrowUpCircle,
   ShieldCheck,
-  Star
+  Star,
+  Download,
+  Award,
+  BarChart
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -54,12 +57,22 @@ export const Dashboard = ({ lang, onLogout, enrolledProgram }: DashboardProps) =
       upgradeTitle: 'Siap Naik Level ke Expert?',
       upgradeSub: 'Buka strategi scaling budget miliaran, arsitektur campaign lanjutan, dan optimasi kreatif tingkat tinggi.',
       upgradeBtn: 'Upgrade Sekarang & Klaim Diskon Alumni',
+      progressTitle: 'Progres Belajar Anda',
+      nextLesson: 'Pelajaran Selanjutnya',
+      completed: 'Selesai',
+      resourcesTitle: 'Resources & Templates',
+      download: 'Unduh',
       lessons: [
         'Pengenalan Ads Manager & Struktur Akun',
         'Setup Pixel & Conversion API',
         'Strategi Targeting & Audiens',
         'Analisa Data & Optimasi Iklan',
         'Creative Testing Framework'
+      ],
+      resourceList: [
+        { title: 'Template Struktur Campaign', type: 'Excel', size: '1.2 MB' },
+        { title: 'Cheatsheet Copywriting Ads', type: 'PDF', size: '850 KB' },
+        { title: 'Checklist Launching Iklan', type: 'PDF', size: '420 KB' }
       ]
     },
     en: {
@@ -83,12 +96,22 @@ export const Dashboard = ({ lang, onLogout, enrolledProgram }: DashboardProps) =
       upgradeTitle: 'Ready to Level Up to Expert?',
       upgradeSub: 'Unlock multi-million budget scaling strategies, advanced campaign architecture, and high-level creative optimization.',
       upgradeBtn: 'Upgrade Now & Claim Alumni Discount',
+      progressTitle: 'Your Learning Progress',
+      nextLesson: 'Next Lesson',
+      completed: 'Completed',
+      resourcesTitle: 'Resources & Templates',
+      download: 'Download',
       lessons: [
         'Introduction to Ads Manager & Structure',
         'Pixel & Conversion API Setup',
         'Targeting & Audience Strategy',
         'Data Analysis & Ad Optimization',
         'Creative Testing Framework'
+      ],
+      resourceList: [
+        { title: 'Campaign Structure Template', type: 'Excel', size: '1.2 MB' },
+        { title: 'Ads Copywriting Cheatsheet', type: 'PDF', size: '850 KB' },
+        { title: 'Ads Launching Checklist', type: 'PDF', size: '420 KB' }
       ]
     }
   }[lang];
@@ -98,7 +121,6 @@ export const Dashboard = ({ lang, onLogout, enrolledProgram }: DashboardProps) =
     { id: 'transactions', label: t.transactions, icon: <CreditCard size={20} /> },
   ];
 
-  // Only show upgrade tab for Newbie users
   if (enrolledProgram === 'newbie') {
     sidebarLinks.push({ id: 'upgrade', label: t.upgrade, icon: <ArrowUpCircle size={20} /> });
   }
@@ -116,7 +138,7 @@ export const Dashboard = ({ lang, onLogout, enrolledProgram }: DashboardProps) =
         <div className="p-8 border-b">
            <div className="flex flex-col">
               <span className="text-xl font-black text-gray-900 uppercase">Adsup</span>
-              <span className="text-[10px] font-bold text-adsup-blue uppercase tracking-[0.2em]">Academy Dashboard</span>
+              <span className="text-[10px] font-bold text-adsup-blue uppercase tracking-widest">Academy Dashboard</span>
            </div>
         </div>
         
@@ -167,19 +189,21 @@ export const Dashboard = ({ lang, onLogout, enrolledProgram }: DashboardProps) =
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="space-y-8"
+              className="space-y-12"
             >
-               {/* Course Card */}
-               <div className="bg-adsup-dark rounded-[40px] p-8 md:p-12 text-white shadow-2xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-8 text-white/5 opacity-10">
-                    <BookOpen size={200} />
-                  </div>
-                  <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
-                    <div>
+               {/* Course Summary & Progress */}
+               <div className="grid lg:grid-cols-3 gap-8">
+                  {/* Hero Course Card */}
+                  <div className="lg:col-span-2 bg-adsup-dark rounded-[40px] p-8 md:p-12 text-white shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-8 text-white/5 opacity-10">
+                      <BookOpen size={160} />
+                    </div>
+                    <div className="relative z-10">
                       <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-adsup-blue/20 text-adsup-blue text-[10px] font-black uppercase tracking-widest mb-6 border border-adsup-blue/30">
                         {enrolledProgram.toUpperCase()} CLASS
                       </div>
-                      <h2 className="text-4xl font-black mb-6 leading-tight">{enrolledProgram === 'newbie' ? t.newbieTitle : t.expertTitle}</h2>
+                      <h2 className="text-3xl font-black mb-6 leading-tight">{enrolledProgram === 'newbie' ? t.newbieTitle : t.expertTitle}</h2>
+                      
                       <div className="flex items-center gap-6 mb-8">
                          <div className="flex flex-col">
                             <span className="text-2xl font-bold">24</span>
@@ -191,27 +215,109 @@ export const Dashboard = ({ lang, onLogout, enrolledProgram }: DashboardProps) =
                             <span className="text-xs text-gray-400 uppercase tracking-widest font-bold">Content</span>
                          </div>
                       </div>
-                      <div className="w-full bg-white/10 h-3 rounded-full mb-8">
-                        <div className="bg-adsup-blue h-full w-1/4 rounded-full"></div>
+
+                      <div className="space-y-3 mb-8">
+                        <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-gray-400">
+                           <span>{t.progressTitle}</span>
+                           <span className="text-adsup-blue">25%</span>
+                        </div>
+                        <div className="w-full bg-white/10 h-3 rounded-full">
+                          <div className="bg-adsup-blue h-full w-1/4 rounded-full shadow-[0_0_15px_rgba(0,132,255,0.5)]"></div>
+                        </div>
                       </div>
-                      <button className="bg-adsup-blue text-white px-8 py-4 rounded-2xl font-bold hover:bg-blue-600 transition-all shadow-xl shadow-blue-500/20 flex items-center gap-2">
-                        {t.startLearning} <PlayCircle size={20} />
+
+                      <button className="bg-adsup-blue text-white px-8 py-4 rounded-2xl font-bold hover:bg-blue-600 transition-all shadow-xl shadow-blue-500/20 flex items-center gap-2 group">
+                        {t.startLearning} <PlayCircle size={20} className="group-hover:scale-110 transition-transform" />
                       </button>
                     </div>
-                    <div className="bg-white/5 rounded-3xl p-6 border border-white/10 backdrop-blur-sm">
-                        <h3 className="font-bold mb-6 flex items-center gap-2 text-blue-300"><Layout size={18}/> {t.curriculum}</h3>
+                  </div>
+
+                  {/* Next Lesson Focus */}
+                  <div className="bg-white rounded-[40px] p-8 shadow-xl border border-gray-100 flex flex-col">
+                     <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-adsup-blue">
+                           <Zap size={20} />
+                        </div>
+                        <h3 className="font-black text-gray-900 text-sm uppercase tracking-widest">{t.nextLesson}</h3>
+                     </div>
+                     <div className="flex-1 p-6 bg-gray-50 rounded-3xl border border-gray-100 mb-6">
+                        <p className="text-xs font-black text-adsup-blue uppercase mb-2">Module 2 • Part 1</p>
+                        <p className="font-bold text-gray-900 text-lg mb-4">Setup Pixel & Conversion API Mastery</p>
+                        <div className="flex items-center gap-2 text-xs text-gray-400 font-bold">
+                           <Clock size={14} /> 45 Mins
+                        </div>
+                     </div>
+                     <button className="w-full py-4 rounded-2xl bg-gray-900 text-white font-bold hover:bg-black transition-colors flex items-center justify-center gap-2">
+                        Watch Now <ChevronRight size={18} />
+                     </button>
+                  </div>
+               </div>
+
+               {/* Curriculum & Resources Grid */}
+               <div className="grid lg:grid-cols-3 gap-8">
+                  {/* Curriculum List */}
+                  <div className="lg:col-span-2 bg-white rounded-[40px] p-8 md:p-12 shadow-xl border border-gray-100">
+                     <div className="flex items-center justify-between mb-8">
+                        <h3 className="text-xl font-black text-gray-900 flex items-center gap-3">
+                           <BarChart className="text-adsup-blue" /> {t.curriculum}
+                        </h3>
+                     </div>
+                     <div className="space-y-4">
+                        {t.lessons.map((lesson: string, idx: number) => (
+                           <div key={idx} className="flex items-center gap-4 p-5 rounded-2xl bg-gray-50 hover:bg-blue-50/50 transition-all cursor-pointer group border border-transparent hover:border-blue-100">
+                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all ${idx === 0 ? 'bg-green-100 text-green-600' : 'bg-gray-200 text-gray-500 group-hover:bg-adsup-blue group-hover:text-white'}`}>
+                                 {idx === 0 ? <CheckCircle2 size={18} /> : idx + 1}
+                              </div>
+                              <div className="flex-1">
+                                 <p className="text-sm font-bold text-gray-900">{lesson}</p>
+                                 <p className="text-[10px] text-gray-400 font-black uppercase tracking-wider">{idx === 0 ? t.completed : 'Up Next'}</p>
+                              </div>
+                              {idx > 0 && <Lock size={16} className="text-gray-300" />}
+                           </div>
+                        ))}
+                     </div>
+                  </div>
+
+                  {/* Resources Section */}
+                  <div className="space-y-8">
+                     <div className="bg-white rounded-[40px] p-8 shadow-xl border border-gray-100">
+                        <h3 className="text-lg font-black text-gray-900 mb-6 flex items-center gap-3">
+                           <FileText className="text-adsup-blue" /> {t.resourcesTitle}
+                        </h3>
                         <div className="space-y-4">
-                           {t.lessons.map((lesson: string, idx: number) => (
-                             <div key={idx} className="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group">
-                                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-xs font-bold text-gray-400 group-hover:bg-adsup-blue group-hover:text-white transition-all">
-                                   {idx + 1}
-                                </div>
-                                <p className="text-sm font-bold flex-1">{lesson}</p>
-                                {idx === 0 ? <CheckCircle2 size={18} className="text-green-400" /> : <Lock size={16} className="text-gray-600" />}
-                             </div>
+                           {t.resourceList.map((res: any, idx: number) => (
+                              <div key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 group hover:bg-white hover:shadow-md transition-all border border-transparent hover:border-gray-100">
+                                 <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-blue-50 text-adsup-blue flex items-center justify-center">
+                                       <FileText size={18} />
+                                    </div>
+                                    <div>
+                                       <p className="text-xs font-bold text-gray-900">{res.title}</p>
+                                       <p className="text-[10px] text-gray-400 font-bold">{res.type} • {res.size}</p>
+                                    </div>
+                                 </div>
+                                 <button className="text-gray-400 hover:text-adsup-blue transition-colors">
+                                    <Download size={18} />
+                                 </button>
+                              </div>
                            ))}
                         </div>
-                    </div>
+                     </div>
+
+                     {/* Quick Award Tracker */}
+                     <div className="bg-gradient-to-br from-orange-400 to-red-500 rounded-[40px] p-8 text-white shadow-xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-4 opacity-20">
+                           <Award size={100} />
+                        </div>
+                        <h4 className="font-black text-sm uppercase tracking-widest mb-2">Certification</h4>
+                        <p className="text-xs opacity-90 mb-6">Complete 100% curriculum to unlock your official AdsUp Academy Certificate.</p>
+                        <div className="flex items-center gap-4">
+                           <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                              <Star size={20} className="fill-white" />
+                           </div>
+                           <p className="font-bold text-sm">Level: Novice Advertiser</p>
+                        </div>
+                     </div>
                   </div>
                </div>
 
