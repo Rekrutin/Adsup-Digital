@@ -1,11 +1,9 @@
 
-// Added React import to provide access to the React namespace for types like ReactNode
 import React from 'react';
 
 export interface CurriculumItem {
   title: string;
   description: string;
-  icon: React.ReactNode;
 }
 
 export interface Testimonial {
@@ -18,4 +16,10 @@ export interface Testimonial {
 export interface MethodItem {
   title: string;
   description: string;
+}
+
+export interface ProgramFeature {
+  name: string;
+  newbie: string | boolean;
+  expert: string | boolean;
 }
